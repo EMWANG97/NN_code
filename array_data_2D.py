@@ -1,3 +1,4 @@
+# Basic funtion.Developed by EM Wang / 2023.6.30 / QQ:326496053
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
