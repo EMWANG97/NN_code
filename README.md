@@ -1,6 +1,6 @@
 # NN_code
 Source code of 2D-CNN and CGAN.<br>
-The neural network model is mainly applicable to the prediction of mechanical properties of porous materials in compression.<br>
+NN models are mainly applicable to the prediction of mechanical properties of porous materials.<br>
 Both 2D-CNN and CGAN models use deep convolutional neural networks.<br>
 <br>
 <br>
