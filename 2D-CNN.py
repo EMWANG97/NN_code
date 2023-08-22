@@ -1,3 +1,4 @@
+# 2D-CNN.Developed by EM Wang / 2023.6.30 / QQ:326496053
 import csv
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D,Activation,Dropout,Flatten,Dense,AveragePooling2D,MaxPooling2D
@@ -9,7 +10,7 @@ from sklearn.utils import shuffle
 from tensorflow.keras.preprocessing.image import ImageDataGenerator,img_to_array,load_img
 from PIL import Image
 
-
+# GPU selection
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
