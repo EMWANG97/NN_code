@@ -17,6 +17,7 @@ def wasserstein_loss(y_true, y_pred):
 
 class CGAN():
     def __init__(self):
+        # initial parameters
         self.img_shape = (64, 64, 1)
         self.latent_dim = 100
         self.data_num = 2400
@@ -24,12 +25,15 @@ class CGAN():
         self.batch_size = 32
         self.iter = 500001
         self.save_interval = 200
+        
         # pre-training
         self.pre_training = 501
-
+        
+        # optimizer
         D_optimizer = Adam(5e-5)
         G_optimizer = Adam(5e-5)
 
+        # compile
         self.discriminator = self.build_discriminator()
         self.discriminator.compile(loss='binary_crossentropy',
             optimizer=D_optimizer,
@@ -48,6 +52,7 @@ class CGAN():
         self.combined.compile(loss='binary_crossentropy', optimizer=G_optimizer)
 
     def build_generator(self):
+        # build the generator model
         model = Sequential()
         model.add(Dense(256 * 4 * 4,  input_dim=self.latent_dim))
         model.add(BatchNormalization(momentum=0.9))
@@ -55,9 +60,6 @@ class CGAN():
         model.add(Reshape((4, 4, 256)))
         model.add(UpSampling2D())
 
-        model.add(Conv2D(256, kernel_size=3, strides=1, padding="same"))
-        model.add(BatchNormalization(momentum=0.9))
-        model.add(LeakyReLU(alpha=0.2))
         model.add(Conv2D(256, kernel_size=3, strides=1, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
         model.add(LeakyReLU(alpha=0.2))
@@ -98,6 +100,7 @@ class CGAN():
         return Model(noise, img)
 
     def build_discriminator(self):
+        # build the discriminator model
         model = Sequential()
         model.add(Conv2D(16, kernel_size=3, strides=1, input_shape=self.img_shape, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
