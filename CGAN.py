@@ -20,7 +20,7 @@ class CGAN():
         self.img_shape = (64, 64, 1)
         self.latent_dim = 100
         self.data_num = 2400
-        self.train_dir = 'D:/faom model and analysis DL/2D analysis/2D-CNN/training_data/'
+        self.train_dir = 'D:/'
         self.batch_size = 32
         self.iter = 500001
         self.save_interval = 200
@@ -105,6 +105,7 @@ class CGAN():
     def build_discriminator(self):
         # build the discriminator model
         model = Sequential()
+        # size 64*64
         model.add(Conv2D(16, kernel_size=3, strides=1, input_shape=self.img_shape, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
         model.add(LeakyReLU(alpha=0.2))
@@ -114,6 +115,7 @@ class CGAN():
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.25))
 
+        # size 32*32
         model.add(Conv2D(32, kernel_size=3, strides=1, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
         model.add(LeakyReLU(alpha=0.2))
@@ -123,6 +125,7 @@ class CGAN():
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.25))
 
+        # size 16*16
         model.add(Conv2D(64, kernel_size=3, strides=1, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
         model.add(LeakyReLU(alpha=0.2))
@@ -132,6 +135,7 @@ class CGAN():
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.25))
 
+        # size 8*8
         model.add(Conv2D(128, kernel_size=3, strides=1, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
         model.add(LeakyReLU(alpha=0.2))
@@ -141,6 +145,7 @@ class CGAN():
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.25))
 
+        # size 4*4
         model.add(Conv2D(256, kernel_size=3, strides=1, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
         model.add(LeakyReLU(alpha=0.2))
