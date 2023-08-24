@@ -25,14 +25,14 @@ class CGAN():
         self.iter = 500001
         self.save_interval = 200
         
-        # pre-training
+        # pre-training epoch 
         self.pre_training = 501
         
-        # optimizer
+        # optimizer selection: Adam
         D_optimizer = Adam(5e-5)
         G_optimizer = Adam(5e-5)
 
-        # compile
+        # model compile: discriminator
         self.discriminator = self.build_discriminator()
         self.discriminator.compile(loss='binary_crossentropy',
             optimizer=D_optimizer,
@@ -40,21 +40,24 @@ class CGAN():
 
         self.generator = self.build_generator()
 
+        # basic noise input: latent_dim=100
         noise = Input(shape=(self.latent_dim,))
+        # generate the images by generator
         img = self.generator(noise)
-
         # self.discriminator.trainable = False
-
+        # discriminate the real and fake images by discriminator, and return a parameter
         valid = self.discriminator(img)
-
         self.combined = Model(noise, valid)
+        # model compile generator
         self.combined.compile(loss='binary_crossentropy', optimizer=G_optimizer)
 
     def build_generator(self):
         # build the generator model
         model = Sequential()
         model.add(Dense(256 * 4 * 4,  input_dim=self.latent_dim))
+        # batch normalization operation
         model.add(BatchNormalization(momentum=0.9))
+        # leaky ReLU function
         model.add(LeakyReLU(alpha=0.2))
         model.add(Reshape((4, 4, 256)))
         model.add(UpSampling2D())
@@ -97,9 +100,10 @@ class CGAN():
         model.add(Conv2D(1, kernel_size=3, strides=1, padding="same", activation='tanh'))
         model.summary()
 
+        # input noise
         noise = Input(shape=(self.latent_dim,))
         img = model(noise)
-
+        
         return Model(noise, img)
 
     def build_discriminator(self):
@@ -109,6 +113,7 @@ class CGAN():
         model.add(Conv2D(16, kernel_size=3, strides=1, input_shape=self.img_shape, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
         model.add(LeakyReLU(alpha=0.2))
+        # drop out operation to reduce the over-fitting
         model.add(Dropout(0.25))
         model.add(Conv2D(16, kernel_size=3, strides=2, padding="same"))
         model.add(BatchNormalization(momentum=0.9))
@@ -155,10 +160,13 @@ class CGAN():
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.25))
 
+        # flatten and dense layer
         model.add(Flatten())
         model.add(Dropout(0.25))
         model.add(Dense(1, activation='sigmoid'))
         model.summary()
+        
+        # input images
         img = Input(shape=self.img_shape)
         validity = model(img)
         return Model(img, validity)
@@ -168,11 +176,13 @@ class CGAN():
         # basic file input and initial parameters
         train_img = []
         print('---File input---')
+        # image input and resize
         for i in range(1, self.data_num + 1):
             img = Image.open("{}.png".format(self.train_dir + str(i)))
             img = img.resize((64,64))
             train_img.append(img_to_array(img))
 
+        # 
         model_training_data = np.array(train_img)
         print(model_training_data.shape)
         X_train = model_training_data / 127.5 - 1.
