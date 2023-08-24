@@ -52,43 +52,48 @@ model.add(Conv2D(filters=256,kernel_size=3,padding='same',activation='relu'))
 model.add(Conv2D(filters=256,kernel_size=3,padding='same',activation='relu'))
 model.add(AveragePooling2D(pool_size=(2, 2), strides=(2, 2)))
 
+# flatten and fully connected layer
 model.add(Flatten())
 model.add(Dense(2048,activation='relu',kernel_regularizer=regularizers.l2(0.01)))
 model.add(Dense(2048,activation='relu',kernel_regularizer=regularizers.l2(0.01)))
 
+# dense layer
 model.add(Dense(200,activation='linear'))
 
-# optimizer
+# optimizer selection : Adam 
 adam = Adam(learning_rate=1e-5)
 
-# compile
+# model compile
 model.compile(optimizer=adam,loss='mae')
 
-# file input
+# basic dataset generate and file input
 print('\n'+'-----File input-----')
-
-# basic training
+# basic training process
 train_img=[]
+# images input,resize,normalize
 for i in range (1,data_num+1):
     img = Image.open("{}.png".format(train_dir+str(i)))
     img = img.resize((64, 64))
     train_img.append([img_to_array(img)/255.])
 model_training_data = train_img
 model_training_data = np.concatenate(model_training_data)
+# label input
 para_training_data = array_para_data("{}.csv".format(train_dir +'training_data_para'),para_num)
+# genereate the dataset and shuffle the data 
 model_training_data,para_training_data = shuffle(model_training_data, para_training_data)
 print('-----File input complete-----')
 print('The shape of batch:',model_training_data.shape)
 print('The shape of para:',para_training_data.shape)
 
-# model training by using "fit" function
+# model training by using "fit" function based on Sequential model
 model_fit = model.fit(model_training_data, para_training_data, batch_size=batch_size, epochs=epochs, shuffle=True, validation_split=0.2)
+# model evaluate 
 model.evaluate(model_training_data, para_training_data, batch_size=batch_size)
 
-# model evaluate 
-# export the training loss to csv. files
+# export the training and the validation loss to csv. files
 loss_list = model_fit.history['loss']
 val_loss_list = model_fit.history['val_loss']
+# zip operation, export
 loss = zip(loss_list,val_loss_list)
 with open('loss.csv',"w",newline='') as loss_csv:
     writer = csv.writer(loss_csv)
