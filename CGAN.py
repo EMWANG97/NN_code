@@ -182,11 +182,12 @@ class CGAN():
             img = img.resize((64,64))
             train_img.append(img_to_array(img))
 
-        # 
+        # data normalization
         model_training_data = np.array(train_img)
         print(model_training_data.shape)
         X_train = model_training_data / 127.5 - 1.
 
+        # generate 1 & 0 matrix to discriminate the real and fake images
         valid = np.zeros((self.batch_size, 1))
         fake = np.ones((self.batch_size, 1))
 
@@ -194,17 +195,20 @@ class CGAN():
         self.discriminator.trainable = True
 
         for i in range(self.pre_training):
+            # batch images selection
             idx = np.random.randint(0, X_train.shape[0], self.batch_size)
             imgs = X_train[idx]
 
+            # input random noise to generator to generate fake images
             noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
             gen_imgs = self.generator.predict(noise)
 
+            # discriminator loss calculation: d_loss_real, d_loss_fake and total d_loss
             d_loss_real = self.discriminator.train_on_batch(imgs, valid)
             d_loss_fake = self.discriminator.train_on_batch(gen_imgs, fake)
             d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
-
+            # discriminator loss visualization
             if i % self.save_interval == 0:
                 print("%d [D loss: %f, acc.: %.2f%%] " % (i, d_loss[0], 100 * d_loss[1]))
 
@@ -215,31 +219,39 @@ class CGAN():
         self.discriminator.trainable = False
 
         for i in range(self.iter):
-
+            # batch images selection
             idx = np.random.randint(0, X_train.shape[0], self.batch_size)
             imgs = X_train[idx]
 
+            # input random noise to generator to generate fake images
             noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
             gen_imgs = self.generator.predict(noise)
 
+            # discriminator loss calculation: d_loss_real, d_loss_fake and total d_loss
             d_loss_real = self.discriminator.train_on_batch(imgs, valid)
             d_loss_fake = self.discriminator.train_on_batch(gen_imgs, fake)
             d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
+            # generator loss calculation
             g_loss = self.combined.train_on_batch(noise, valid)
 
+            # loss visualization
             if i % self.save_interval == 0:
                 print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (i, d_loss[0], 100 * d_loss[1], g_loss))
                 self.img_export(i)
 
     def img_export(self,iter):
         # export the images every 200 epoches during training
+        # set image number: 25 (5*5)
         r,c = 5,5
         noise = np.random.normal(0, 1, (r*c, self.latent_dim))
         gen_imgs = self.generator.predict(noise)
+        # images regenerate by img matrix
         gen_imgs = 0.5 * gen_imgs + 0.5
         width, height = self.img_shape[0],self.img_shape[1]
+        # arrange the generated images in one image set
         new_image = Image.new('L', (20+5 * width + 4 * 10, 20+5 * height + 4 * 10), 255)
+        # generate images arrangement
         for i in range(5):
             for j in range(5):
                 index = i * 5 + j
@@ -249,6 +261,7 @@ class CGAN():
                     new_arr = (gen_imgs[index, :, :, 0] * 255.).astype(np.uint8)
                     img =  Image.fromarray(new_arr,mode='L')
                     new_image.paste(img, (x, y,x+width,y+height))
+        # image sets save
         new_image.save("{}.png".format(str(iter)))
 
 if __name__ == '__main__':
